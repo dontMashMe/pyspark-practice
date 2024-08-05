@@ -199,3 +199,55 @@ def ordersInSpecificDateRange(rangeLow: str, rangeHigh: str):
 
 #ordersInSpecificDateRange('2023-08-01', '2023-08-05').show()
 
+"""
+SELECT DISTINCT c.CustomerID, c.CustomerName 
+FROM Customers c 
+JOIN Orders o ON c.CustomerID = o.CustomerID 
+WHERE o.TotalAmount > 100;
+"""
+def customersAboveCertainAmount(amount: int):
+    return customer_df.join(
+        orders_df, col("c.CustomerID") == col("o.CustomerID")).where(col("o.TotalAmount") > amount).select(col("c.CustomerID"), col("c.CustomerName")).distinct()
+
+#customersAboveCertainAmount(100).show()
+
+
+"""
+SELECT p.ProductName 
+FROM Products p 
+JOIN OrderDetails od ON p.ProductID = oi.ProductID 
+JOIN Orders o ON od.OrderID = o.OrderID 
+WHERE o.CustomerID = 1;
+"""
+def specificCustomerOrders(customerId: int): 
+    df_products_orders = product_df.join(order_details_df, col("od.ProductID") == col("p.ProductID")).select(
+        col("p.ProductName"), col("od.OrderID")
+    )
+
+    return df_products_orders.join(orders_df, col("o.OrderID") == col("od.OrderID")).where(col("o.CustomerID") == customerId).select(
+        col("p.ProductName")
+    )
+
+#specificCustomerOrders(1).show()
+
+"""
+SELECT c.CustomerID, c.CustomerName 
+FROM Customers c 
+WHERE c.CustomerID NOT IN (
+    SELECT o.CustomerID 
+    FROM Orders o 
+    WHERE o.OrderDate BETWEEN '2023-02-01' AND '2023-02-28'
+);
+"""
+def customersWithNoOrdersInSpecificRange(rangeLow: str, rangeHigh: str):
+    # Find all orders in given range
+    df_orders_in_month = orders_df.filter(
+        (col("o.OrderDate") >= rangeLow) & (col("o.OrderDate") <= rangeHigh)
+    ).select(col("o.OrderID"), col("o.CustomerID"))
+    
+    # anti join to get difference
+    return customer_df.join(df_orders_in_month, col("o.CustomerID") == col("c.CustomerID"), "left_anti").select(
+        col("c.CustomerID"), col("c.CustomerName")
+    )
+
+customersWithNoOrdersInSpecificRange('2023-08-01', '2023-08-05').show()
