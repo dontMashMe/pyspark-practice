@@ -1,0 +1,6 @@
+CustomerID,CustomerName,CustomerEmail,CustomerAddress
+1,John Doe,johndoe@example.com,123 Elm St
+2,Jane Smith,janesmith@example.com,456 Oak St
+3,Bob Johnson,bobjohnson@example.com,789 Pine St
+4,Alice Brown,alicebrown@example.com,101 Maple St
+5,Charlie White,charliewhite@example.com,202 Birch St
